@@ -10,16 +10,39 @@ import random
 
 # Funkce generování tajného čísla
 def generovani_tajneho_cisla():
-    return ''.join(random.sample('1234567890', 4))
+    cisla = random.sample('0123456789', 4)
+    return ''.join(cisla)
 
 # Kontrolní funkce, zda je tip validní
 def validni_tip(guess):
-    return len(guess) == 4 and guess.isdigit() and len(set(guess)) == 4
+    if len(guess) != 4:
+        return False, "The guess must be exactly 4 digits.\n" + "-" * 47
+    if not guess.isdigit():
+        return False, "The guess must contain only digits.\n" + "-" * 47
+    if guess[0] == '0':
+        return False, "The guess cannot start with a zero.\n" + "-" * 47
+    if len(set(guess)) != 4:
+        return False, "All digits in the guess must be unique.\n" + "-" * 47
+    return True, ""
 
 # Funkce vyhodnocování tipu
 def vyhodnoceni_tipu(secret, guess):
-    bulls = sum(1 for i in range(4) if secret[i] == guess[i])
-    cows = sum(1 for i in range(4) if guess[i] in secret and secret[i] != guess[i])
+    bulls = 0
+    cows = 0
+
+    tajne_cislo = [0] * 10
+    tip = [0] * 10
+
+    for i in range(4):
+        if secret[i] == guess[i]:
+            bulls += 1
+        else:
+            tajne_cislo[int(secret[i])] += 1
+            tip[int(guess[i])] += 1
+
+    for i in range(10):
+        cows += min(tajne_cislo[i], tip[i])
+
     return bulls, cows
 
 # Funkce zobrazení správného formátu
@@ -37,24 +60,24 @@ def main():
     attempts = 0
 
     while True:
-        
         if attempts == 0:
-            guess = input('Enter a number (or type "exit" to quit the game):\n>>> ')
+            guess = input(f"Enter a number (or type \"exit\" to quit the game):\n>>> ")
         else:
-            guess = input('>>> ')
+            guess = input(f">>> ")
 
         if guess.lower() == "exit":
-            print("Exiting the game. Goodbye!")
+            print("Exiting the game. Goodbye!\n" + "-" * 47)
             break
         
-        if not validni_tip(guess):
-            print("Invalid guess! Try again.")
+        valid, error_message = validni_tip(guess)
+        
+        if not valid:
+            print(error_message)
             continue
         
         attempts += 1
         bulls, cows = vyhodnoceni_tipu(secret_number, guess)
 
-        # Vyhodnocení správného tipu
         if bulls == 4:
             print(f"Correct, you've guessed the right number\nin {attempts} guesses!")
             print("-" * 47)
