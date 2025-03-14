@@ -10,7 +10,9 @@ import random
 
 # Funkce generování tajného čísla
 def generovani_tajneho_cisla():
-    cisla = random.sample('0123456789', 4)
+    prvni_cislo = random.choice('123456789')
+    ostatni_cisla = random.sample('0123456789'.replace(prvni_cislo, ''), 3)
+    cisla = [prvni_cislo] + ostatni_cisla
     return ''.join(cisla)
 
 # Kontrolní funkce, zda je tip validní
